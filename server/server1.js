@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
+const fs = require('fs')
 const cors = require("cors");
 const port = 5000;
+// const dataFilePath = './data.json;'
 
 let todos = [];
 
@@ -32,7 +34,7 @@ app.put("/api/todos/:id", (req, res) => {
   const { id } = req.params;
   const { name, input } = req.body;
   const todoIndex = todos.findIndex((todo) => todo.id === parseInt(id));
-  if (todoIndex === -1) {
+  if (!todoIndex) {
     res.status(404).json({ message: "Not found" });
   }
   todos[todoIndex].name = name || todos[todoIndex].name;

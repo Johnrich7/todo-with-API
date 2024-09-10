@@ -1,74 +1,75 @@
-const http = require('http');
-const url = require('url')
+const express = require('express')
+const fs = require('fs')
+const app = express()
+const cors = require('cors')
+const {v4: uuidv4} = require('uuid');
 
-let todos = []
+app.use(express.json())
+app.use(
+    cors({
+      origin: "http://localhost:5173",
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      allowedHeaders: ["Content-Type"],
+    })
+  );
 
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true)
-    const path = parsedUrl.pathname
-    const method = req.method
+const port = 3000
+const dataFilePath = './data.json'
 
-    res.setHeader("Content-Type", "application/json")
-
-    if (method === "GET" && path === "/api/todos") {
-        res.statusCode = 200;
-        res.end(JSON.stringify({ todos }))
-    } else if (method === "POST" && path === "/api/todos") {
-        let body = ''
-        req.on('data', chunk => {
-            body += chunk.toString();
-        })
-        req.on('end', () => {
-            const { name, input } = JSON.parse(body)
-            const newTodo = { id: todos.length + 1, name, input }
-            todos.push(newTodo)
-            res.statusCode = 201
-            res.end(JSON.stringify({ message: 'Todo added', todo: newTodo }))
-        })
-    } else if (method === "PUT" && path.startsWith === "/api/todos") {
-        const id = parseInt(path.split('/')[3])
-        let body = ''
-        req.on('data', chunk => {
-            body += chunk.toString();
-        })
-        req.on('end', () => {
-            const { name, input } = JSON.parse(body)
-            const todoIndex = todos.findIndex(todo => todo.id === id)
-            if (todoIndex === -1) {
-                res.statusCode = 404;
-                res.end(JSON.stringify({ message: 'Todo not found' }))
-            } else {
-                todos[todoIndex].name = name || todos[todoIndex].name
-                todos[todoIndex].input = input || todos[todoIndex].input
-                res.statusCode = 200
-                res.end(JSON.stringify({ message: 'Todo updated' }))
-            }
-        })
-    } else if (method === "DELETE" && path.startsWith("/api/todos/")) {
-        const id = parseInt(path.split('/')[3])
-        const todoIndex = todos.findIndex(todo => todo.id === id)
-        if (todoIndex === -1) {
-            res.statusCode = 404
-            res.end(JSON.stringify({message: 'Todo not found'}))
-        } else {
-            todos.splice(todoIndex, 1)
-            res.statusCode = 200
-            res.end(JSON.stringify({message: 'Todo deleted'}))
-        }
-    } else {
-        res.statusCode = 404
-        res.end(JSON.stringify({message: 'not found'}))
+const readDataFromFile = () => {
+    try {
+        const data = fs.readFileSync(dataFilePath, 'utf-8')
+        return JSON.parse(data)
+    } catch (error) {
+        console.error('Error reading the file:', error)
+        return []
     }
+}
+
+const writeDataFile = (data) => {
+    try {
+        fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf-8')
+        console.log(data)
+    } catch (error) {
+        console.error('Error writing the file:', error)
+    }
+}
+
+app.get('/todos', (req, res) => {
+    const todos = readDataFromFile();
+    res.json(todos)
+    // console.log(todos)
 })
 
-const port = 5000
-server.listen(port, () => console.log(`Server started on port ${port}`))
+app.post('/add-todos', (req, res) => {
+    const todos = readDataFromFile();
+    const newTodo = {
+        id: uuidv4(),
+        name: req.body.name,
+        input: req.body.input
+    }
+    todos.push(newTodo);
+    writeDataFile(todos);
+    console.log('Todo added successfully')
+    res.status(201).json({message: 'Todo added successfully'})
+})
 
+app.put('/edit-todos/:id', (req, res) => {
+    let todos = readDataFromFile()
+    const id = req.params.id
+    const updatedTodo = todos.map(todo => todo.id === id ? {...todo, name: req.body.name, input: req.body.input} : todo);
+    writeDataFile(updatedTodo)
+    res.status(200).json({message: 'Todo updated successfully'})
+})
 
-// {id: 1, name: "John", input: 'complete task'},
-// {id: 2, name: "Kyle", input: 'Play'},
-// {id: 3, name: "Sally", input: 'finish the assignment'},
-// {id: 4, name: "Kevin", input: 'Eat'},
-// {id: 5, name: "Joe", input: 'Go for walk'},
-// {id: 6, name: "Tylor", input: 'call mom'},
-// {id: 7, name: "Mark", input: 'shopping'}
+app.delete('/delete-todos/:id', (req, res) => {
+    const id = req.params.id
+    let todos = readDataFromFile()
+    const fileteredTodo = todos.filter(todo => todo.id !== id)
+    writeDataFile(fileteredTodo)
+    res.status(200).json({message: 'Todo deleted successfully'})
+})
+
+app.listen(port, () => {
+    console.log(`Server started on port http://localhost:${port}`)
+});

@@ -1,7 +1,6 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
 import axios from "axios";
 import { getCurrentTimeDate } from "../utility/getCurrentTimeDate";
-// import { input } from "framer-motion/client";
 
 interface TodoContextProps {
   todos: Todo[];
@@ -22,10 +21,8 @@ export interface Todo {
   updatedAt: string;
 }
 
-const TODO_URL = "http://localhost:5000";
-//list-todo
-//add-todo
-//delte-todo
+const TODO_URL = "http://localhost:3000";
+
 
 export const TodoContext = createContext<TodoContextProps | undefined>(
   undefined
@@ -41,8 +38,9 @@ export const TodoProvider = (props: { children: ReactNode }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.get(`${TODO_URL}/api/todos`);
+      const response = await axios.get(`${TODO_URL}/todos`);
       setTodos(response.data);
+      console.log(response.data)
     } catch (error: any) {
       console.error("Error Fetching Data:", error);
       if (axios.isAxiosError(error)) {
@@ -69,7 +67,9 @@ export const TodoProvider = (props: { children: ReactNode }) => {
     try {
       const createdAt = getCurrentTimeDate();
       console.log(createdAt);
-      await axios.post(`${TODO_URL}/api/todos`, { name, input });
+      const response = await axios.post(`${TODO_URL}/add-todos`, { name, input });
+      const newTodo = response.data.todo
+      console.log('NewTodo:', newTodo)
       setRefetch((v) => !v);
     } catch (error: any) {
       console.error("Error in adding Todo:", error);
@@ -79,7 +79,7 @@ export const TodoProvider = (props: { children: ReactNode }) => {
 
   const deleteTodo = async (id: string) => {
     try {
-      await axios.delete(`${TODO_URL}/api/todos/${id}`);
+      await axios.delete(`${TODO_URL}/delete-todos/${id}`);
       setRefetch((v) => !v);
     } catch (error: any) {
       console.error("Error Deleting Todo:", error);
@@ -91,7 +91,7 @@ export const TodoProvider = (props: { children: ReactNode }) => {
     try {
       const updatedAt = getCurrentTimeDate();
       console.log(updatedAt);
-      await axios.put(`${TODO_URL}/api/todos/${id}`, { name, input });
+      await axios.put(`${TODO_URL}/edit-todos/${id}`, { name, input });
       setRefetch((v) => !v);
     } catch (error: any) {
       console.error("Error in Editing Todo:", error);
