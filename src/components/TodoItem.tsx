@@ -45,12 +45,13 @@ export const TodoItem = (props: { todo: Todo }) => {
   };
 
   return (
-    <motion.li layout key={todo.id} className="p-5 rounded-xl bg-gray-200">
-      {editingTodoId === todo.id ? (
+    <motion.li layout key={todo._id} className="p-5 rounded-xl bg-gray-200">
+      {editingTodoId === todo._id ? (
         <motion.div className="flex gap-2">
           <input
             ref={editingNameRef}
             value={editingName}
+            key={todo._id}
             className="w-full px-5 py-2 bg-transparent border-2 outline-none border-zinc-600 rounded-xl placeholder:text-zinc-700"
             onChange={(e) => setEditingName(e.target.value)}
             placeholder="Name"
@@ -59,13 +60,14 @@ export const TodoItem = (props: { todo: Todo }) => {
           <input
             ref={editingInputRef}
             value={editingTodoInput}
+            key={todo._id}
             className="w-full px-5 py-2 bg-transparent border-2 outline-none border-zinc-600 rounded-xl placeholder:text-zinc-700"
             onChange={(e) => setEditingTodoInput(e.target.value)}
             placeholder="Text"
             type="text"
           />
           <button
-            onClick={() => handleUpdate(todo.id)}
+            onClick={() => handleUpdate(todo._id)}
             className="px-5 py-2 border-2 text-sm font-normal text-orange-400 bg-orange-800 border-orange-900 active:scale-90 rounded-xl"
           >
             Update
@@ -90,14 +92,14 @@ export const TodoItem = (props: { todo: Todo }) => {
           <div className="absolute top-0 right-0 flex gap-2">
             <div className="flex items-center gap-5">
               <button
-                onClick={() => handleEdit(todo.id, todo.name, todo.input)}
+                onClick={() => handleEdit(todo._id, todo.name, todo.input)}
                 className="px-5 py-2 bg-cyan-400 border-2 border-cyan-600 rounded-xl text-sm font-normal flex items-center gap-1"
               >
                 <FaRegEdit />
                 Edit
               </button>
               <button
-                onClick={() => handleDelete(todo.id)}
+                onClick={() => handleDelete(todo._id)}
                 className="px-5 py-2 bg-rose-600 border-2 border-rose-800 rounded-xl text-sm font-normal text-white flex items-center gap-1"
               >
                 <MdDelete />

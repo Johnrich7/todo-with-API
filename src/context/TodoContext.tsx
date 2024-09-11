@@ -13,7 +13,7 @@ interface TodoContextProps {
 }
 
 export interface Todo {
-  id: string;
+  _id: string;
   name: string;
   input: string;
   status: "undone" | "completed";
@@ -21,7 +21,7 @@ export interface Todo {
   updatedAt: string;
 }
 
-const TODO_URL = "http://localhost:3000";
+const TODO_URL = "http://localhost:5000";
 
 
 export const TodoContext = createContext<TodoContextProps | undefined>(
@@ -38,7 +38,7 @@ export const TodoProvider = (props: { children: ReactNode }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.get(`${TODO_URL}/todos`);
+      const response = await axios.get(`${TODO_URL}/api/todos`);
       setTodos(response.data);
       console.log(response.data)
     } catch (error: any) {
@@ -67,7 +67,7 @@ export const TodoProvider = (props: { children: ReactNode }) => {
     try {
       const createdAt = getCurrentTimeDate();
       console.log(createdAt);
-      const response = await axios.post(`${TODO_URL}/add-todos`, { name, input });
+      const response = await axios.post(`${TODO_URL}/api/todos/add`, { name, input });
       const newTodo = response.data.todo
       console.log('NewTodo:', newTodo)
       setRefetch((v) => !v);
@@ -78,8 +78,9 @@ export const TodoProvider = (props: { children: ReactNode }) => {
   };
 
   const deleteTodo = async (id: string) => {
+    console.log("ID passed to deletTodo:", id)
     try {
-      await axios.delete(`${TODO_URL}/delete-todos/${id}`);
+      await axios.delete(`${TODO_URL}/api/todos/delete/${id}`);
       setRefetch((v) => !v);
     } catch (error: any) {
       console.error("Error Deleting Todo:", error);
@@ -88,10 +89,11 @@ export const TodoProvider = (props: { children: ReactNode }) => {
   };
 
   const editTodo = async (id: string, name: string, input: string) => {
+    console.log("ID passed to editTodo:", id)
     try {
       const updatedAt = getCurrentTimeDate();
       console.log(updatedAt);
-      await axios.put(`${TODO_URL}/edit-todos/${id}`, { name, input });
+      await axios.put(`${TODO_URL}/api/todos/edit/${id}`, { name, input });
       setRefetch((v) => !v);
     } catch (error: any) {
       console.error("Error in Editing Todo:", error);
