@@ -20,7 +20,7 @@ app.use("/api/todos", todoroute);
 
 mongoose
   .connect(
-    "mongodb+srv://johnrich7198:YVCuMEeJmM6ifg2f@todobackend.hvc4u.mongodb.net/TodoBackend?retryWrites=true&w=majority&appName=TodoBackend"
+    
   )
   .then(() => {
     console.log("Connected to database");
