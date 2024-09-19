@@ -3,6 +3,8 @@ const app = express();
 const mongoose = require("mongoose");
 const todoroute = require("../server/routes/todoroute");
 const cors = require("cors");
+const dotenv = require("dotenv");
+const {PORT, MONGODB_URL} = require("../server/.secrets/env")
 
 app.use(express.json());
 app.use(
@@ -14,18 +16,15 @@ app.use(
 );
 app.use(express.urlencoded({ extended: false }));
 
-const port = 5000;
 
 app.use("/api/todos", todoroute);
 
 mongoose
-  .connect(
-    "mongodb+srv://johnrich7198:YVCuMEeJmM6ifg2f@todobackend.hvc4u.mongodb.net/TodoBackend?retryWrites=true&w=majority&appName=TodoBackend"
-  )
+  .connect(process.env.MONGODB_URL)
   .then(() => {
     console.log("Connected to database");
-    app.listen(port, () => {
-      console.log(`Server is running on http://localhost:${port}`);
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is running on http://localhost:${process.env.PORT}`);
     });
   })
   .catch(() => console.log("Error connecting to database"));
