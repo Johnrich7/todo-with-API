@@ -20,7 +20,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/todos", todoroute);
 
 mongoose
+<<<<<<< HEAD
   .connect(process.env.MONGODB_URL)
+=======
+  .connect(
+    
+  )
+>>>>>>> 5c160de4999c8af7f30ae6ea7e8c1582f2e7bf2f
   .then(() => {
     console.log("Connected to database");
     app.listen(process.env.PORT, () => {
